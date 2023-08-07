@@ -6,6 +6,7 @@ load_dotenv()
 
 key=os.getenv("zabbix_key")
 ZABBIX_API_URL=os.getenv("api_url")
+source_hostname=os.getenv("hostname")
 
 r = requests.post(ZABBIX_API_URL,
         json={
@@ -14,7 +15,7 @@ r = requests.post(ZABBIX_API_URL,
             "params": {
                 "filter": {
                     "host": [
-                        "artoria",
+                        f"{source_hostname}",
                         ]
                     }
                 },
