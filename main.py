@@ -15,7 +15,6 @@ r = requests.post(ZABBIX_API_URL,
                 "filter": {
                     "host": [
                         "artoria",
-                        "debian"
                         ]
                     }
                 },
@@ -27,3 +26,20 @@ r = requests.post(ZABBIX_API_URL,
 data = json.loads(json.dumps(r.json()))
 
 print(data['result'][0]['hostid'])
+hostid = data['result'][0]['hostid']
+host = data['result'][0]['host']
+
+r = requests.post(ZABBIX_API_URL,
+        json={
+            "jsonrpc": "2.0",
+            "method": "host.update",
+            "params": {
+                "hostid": f"{hostid}",
+                "status": "1"
+                },
+            "id": 1,
+            "auth": f"{key}"
+            }
+        )
+print(f"host {host} with hostid {hostid} has been disabled")
+print(json.loads(json.dumps(r.json())))
