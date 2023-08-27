@@ -1,0 +1,75 @@
+zabbix_export:
+  version: '6.4'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: 33c8473bc74440cb8b31557f91639201
+      template: 'cpu temperature'
+      name: 'cpu temperature'
+      groups:
+        - name: Templates
+      items:
+        - uuid: 6f830de46e9d4697b4c32f2713255b05
+          name: 'cpu package temperature'
+          type: ZABBIX_ACTIVE
+          key: cputemp.package.temperature
+          delay: 10s
+          value_type: FLOAT
+          units: c
+          tags:
+            - tag: component
+              value: cpu
+            - tag: cpu
+              value: package
+          triggers:
+            - uuid: c4f917ce45c741278157bae3697d1579
+              expression: 'last(/cpu temperature/cputemp.package.temperature)>{$AVERAGECPUTEMPERATURE}'
+              name: 'cpu package is at {$AVERAGECPUTEMPERATURE} c'
+              priority: AVERAGE
+            - uuid: 13f84a7df9a3472dbb1e4e0f6f881757
+              expression: 'last(/cpu temperature/cputemp.package.temperature)>{$HIGHCPUTEMPERATURE}'
+              name: 'cpu package is at {$HIGHCPUTEMPERATURE} c'
+              priority: HIGH
+            - uuid: 261f62282e1b4915ac6ef1cab458c500
+              expression: 'last(/cpu temperature/cputemp.package.temperature)>{$WARNINGCPUTEMPERATURE}'
+              name: 'cpu package is at {$WARNINGCPUTEMPERATURE} c'
+              priority: WARNING
+      discovery_rules:
+        - uuid: 84db60733499478f9806042dbae6263c
+          name: 'cpu core discovery'
+          type: ZABBIX_ACTIVE
+          key: cputemp.core.discovery
+          item_prototypes:
+            - uuid: d4d24f18597340648a80af896f591edb
+              name: 'Core {#CORE} temperature'
+              type: ZABBIX_ACTIVE
+              key: 'cputemp.core.temperature[{#CORE}]'
+              delay: 10s
+              value_type: FLOAT
+              units: c
+              tags:
+                - tag: component
+                  value: cpu
+                - tag: cpu
+                  value: 'core {#CORE}'
+              trigger_prototypes:
+                - uuid: 6dc777884eb44c818fc1cf7533ef6e83
+                  expression: 'last(/cpu temperature/cputemp.core.temperature[{#CORE}],#5)>"{$AVERAGECPUTEMPERATURE}"'
+                  name: 'cpu core {#CORE} is at {$AVERAGECPUTEMPERATURE} c'
+                  priority: AVERAGE
+                - uuid: ed5ea298937b4e17a9044f252155bf1f
+                  expression: 'last(/cpu temperature/cputemp.core.temperature[{#CORE}],#5)>"{$HIGHCPUTEMPERATURE}"'
+                  name: 'cpu core {#CORE} is at {$HIGHCPUTEMPERATURE} c'
+                  priority: HIGH
+                - uuid: 8e237958e74748c99bfbfe3711a14da7
+                  expression: 'last(/cpu temperature/cputemp.core.temperature[{#CORE}],#5)>"{$WARNINGCPUTEMPERATURE}"'
+                  name: 'cpu core {#CORE} is at {$WARNINGCPUTEMPERATURE} c'
+                  priority: WARNING
+      macros:
+        - macro: '{$AVERAGECPUTEMPERATURE}'
+          value: '80'
+        - macro: '{$HIGHCPUTEMPERATURE}'
+          value: '90'
+        - macro: '{$WARNINGCPUTEMPERATURE}'
+          value: '70'
